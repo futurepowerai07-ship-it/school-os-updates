@@ -13,12 +13,13 @@
     * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
     body { margin: 0; background: #f1f5f9; color: #0f172a; padding-bottom: 40px; }
     .header { background: linear-gradient(135deg, #0f172a, #1e3a8a); color: white; padding: 18px 16px 22px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 15px rgba(15,23,42,0.2); }
-    .top-row { display: flex; justify-content: space-between; align-items: center; }
+    .top-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
     .badge-live { background: #16a34a; color: white; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px; }
     .badge-closed { background: #dc2626; color: white; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px; }
-    .school-title { font-size: 18px; font-weight: 800; margin: 8px 0 2px; }
+    .school-title { font-size: 18px; font-weight: 800; margin: 2px 0; }
     .sub-info { font-size: 12px; color: #cbd5e1; }
     .container { max-width: 540px; margin: -14px auto 0; padding: 0 14px; }
+    .notif-banner { display: none; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 12px; font-weight: 700; line-height: 1.45; }
     .date-bar { background: white; border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 12px; }
     .date-bar input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 8px; font-weight: 700; font-size: 13px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
@@ -40,17 +41,17 @@
     .login-box { max-width: 400px; margin: 60px auto; background: white; padding: 26px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
     .login-box input { width: 100%; padding: 12px; font-size: 16px; font-weight: 700; text-align: center; border: 2px solid #cbd5e1; border-radius: 10px; margin: 14px 0; }
     .btn-primary { width: 100%; background: #0284c7; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 800; cursor: pointer; }
-    .btn-small { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+    .btn-small { background: rgba(255,255,255,0.18); color: white; border: 1px solid rgba(255,255,255,0.35); padding: 6px 10px; border-radius: 7px; font-size: 11.5px; font-weight: 700; cursor: pointer; }
   </style>
 </head>
 <body>
 
 <div id="loginView" class="login-box" style="display:none;">
-  <img src="logo.png" alt="Future Power AI Logo" style="width:72px; height:72px; border-radius:16px; object-fit:contain; box-shadow:0 4px 12px rgba(15,23,42,0.15);">
-  <h2 style="margin:8px 0 4px; font-size:20px;">School OS Pro Live</h2>
+  <img src="logo.png" alt="Logo" onerror="this.style.display='none'" style="width:72px; height:72px; border-radius:16px; object-fit:contain; box-shadow:0 4px 12px rgba(15,23,42,0.15);">
+  <h2 style="margin:10px 0 4px; font-size:20px;">School OS Pro Live</h2>
   <p style="font-size:13px; color:#64748b; margin:0;">अपना पंजीकृत 10-अंकों का मोबाइल नंबर दर्ज करें:</p>
   <input type="tel" id="mobileLoginInp" maxlength="10" placeholder="उदा. 9876543210">
-  <button class="btn-primary" onclick="submitOwnerMobileLogin()">लाइव डैशबोर्ड खोलें</button>
+  <button class="btn-primary" type="button" onclick="submitOwnerMobileLogin()">लाइव डैशबोर्ड खोलें</button>
 </div>
 
 <div id="dashboardView" style="display:none;">
@@ -58,21 +59,23 @@
     <div class="top-row">
       <span id="statusBadge" class="badge-live">🟢 LIVE SYNC</span>
       <div style="display:flex; gap:6px;">
-     <button id="btnEnableNotif" class="btn-small" onclick="enableOwnerNotifications()">🔔 अलर्ट चालू करें</button>
-     <button class="btn-small" onclick="changeOwnerMobile()">नंबर बदलें</button>
-   </div>
+        <button id="btnEnableNotif" type="button" class="btn-small" onclick="enableOwnerNotifications()">🔔 अलर्ट चालू करें</button>
+        <button type="button" class="btn-small" onclick="changeOwnerMobile()">नंबर बदलें</button>
+      </div>
     </div>
-    <div style="display:flex; align-items:center; gap:11px; margin-top:10px;">
-      <img src="logo.png" alt="Logo" style="width:44px; height:44px; border-radius:11px; background:white; padding:3px; object-fit:contain; flex-shrink:0;">
+    <div style="display:flex; align-items:center; gap:11px; margin-top:12px;">
+      <img src="logo.png" alt="Logo" onerror="this.style.display='none'" style="width:44px; height:44px; border-radius:11px; background:white; padding:3px; object-fit:contain; flex-shrink:0;">
       <div>
         <div style="font-size:10.5px; font-weight:700; color:#93c5fd; letter-spacing:0.4px;">FUTURE POWER AI • SCHOOL OS</div>
-        <div id="schoolNameHdr" class="school-title" style="margin:1px 0;">School OS Pro</div>
+        <div id="schoolNameHdr" class="school-title">School OS Pro</div>
         <div id="mobileSubHdr" class="sub-info">मोबाइल: -</div>
       </div>
     </div>
   </div>
 
   <div class="container">
+    <div id="notifStatusBar" class="notif-banner"></div>
+
     <div class="date-bar">
       <span style="font-size:12.5px; font-weight:800;">📅 दिनांक चुनें:</span>
       <input type="date" id="datePickerInp" onchange="fetchLiveOwnerData()">
@@ -114,6 +117,17 @@
   const STORAGE_MOB_KEY = 'school_os_owner_viewer_mobile';
   let activeMobile = '';
   let lastKnownFeedCount = -1;
+  let swReg = null;
+
+  function showNotifStatus(msg, isError) {
+    const bar = document.getElementById('notifStatusBar');
+    if (!bar) return;
+    bar.style.display = 'block';
+    bar.style.background = isError ? '#fef2f2' : '#f0fdf4';
+    bar.style.border = isError ? '1px solid #fecaca' : '1px solid #86efac';
+    bar.style.color = isError ? '#b91c1c' : '#15803d';
+    bar.innerText = msg;
+  }
 
   function getTodayIso() {
     const n = new Date();
@@ -125,7 +139,128 @@
     return d.length >= 10 ? d.slice(-10) : '';
   }
 
+  function playSoftChime() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.18);
+    } catch (e) {}
+  }
+
+  async function ensureServiceWorker() {
+    if (!('serviceWorker' in navigator)) return null;
+    try {
+      if (swReg) return swReg;
+      swReg = await navigator.serviceWorker.register('./sw.js');
+      await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((r) => setTimeout(r, 2500))
+      ]);
+      return swReg;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function enableOwnerNotifications() {
+    const btn = document.getElementById('btnEnableNotif');
+    if (btn) btn.innerText = '⏳ जाँच जारी...';
+    playSoftChime();
+
+    if (!('Notification' in window)) {
+      if (btn) btn.innerText = '🔔 अलर्ट चालू करें';
+      showNotifStatus('❌ यह ब्राउज़र नोटिफिकेशन सपोर्ट नहीं करता। कृपया लिंक को Google Chrome में खोलें (iPhone में पहले Add to Home Screen से खोलें)।', true);
+      return;
+    }
+
+    if (Notification.permission === 'denied') {
+      if (btn) btn.innerText = '🔕 ब्लॉक है';
+      showNotifStatus('⚠️ Chrome में नोटिफिकेशन ब्लॉक है। ऊपर एड्रेस बार के बाईं ओर सेटिंग/लॉक आइकन पर टैप करें → Permissions → Notifications को Allow करें।', true);
+      return;
+    }
+
+    let perm = Notification.permission;
+    if (perm !== 'granted') {
+      try {
+        perm = await Notification.requestPermission();
+      } catch (e) {
+        showNotifStatus('❌ अनुमति पॉप-अप नहीं खुल सका: ' + e.message, true);
+        if (btn) btn.innerText = '🔔 अलर्ट चालू करें';
+        return;
+      }
+    }
+
+    if (perm !== 'granted') {
+      if (btn) btn.innerText = '🔔 अलर्ट चालू करें';
+      showNotifStatus('⚠️ अनुमति नहीं मिली। कृपया Allow चुनें या Chrome Site Settings से Notifications चालू करें।', true);
+      return;
+    }
+
+    if (btn) btn.innerText = '🔔 अलर्ट चालू';
+    const reg = await ensureServiceWorker();
+    if (!reg) {
+      showNotifStatus('⚠️ अनुमति मिल गई है, लेकिन GitHub पर sw.js फाइल नहीं मिली। कृपया जांचें कि फाइल का नाम ठीक sw.js है (sw.js.txt नहीं)।', true);
+      return;
+    }
+
+    const shown = await showMobileAlertBanner({
+      title: '✅ नोटिफिकेशन चालू हो गया',
+      message: 'अब हर फीस और खर्च का अलर्ट मोबाइल की ऊपरी पट्टी में दिखेगा।',
+      timestamp: Date.now()
+    });
+
+    if (shown) {
+      showNotifStatus('✅ नोटिफिकेशन चालू हो गया! ऊपर फोन की नोटिफिकेशन पट्टी में टेस्ट अलर्ट जाँचें।', false);
+    } else {
+      showNotifStatus('⚠️ अनुमति चालू है लेकिन फोन ने बैनर नहीं दिखाया। फोन की Settings → Apps → Chrome → Notifications चेक करें।', true);
+    }
+  }
+
+  async function showMobileAlertBanner(ev) {
+    playSoftChime();
+    if (navigator.vibrate) navigator.vibrate([250, 100, 250]);
+    if (!('Notification' in window) || Notification.permission !== 'granted') return false;
+
+    let bodyText = ev.message || '';
+    if (ev.type === 'FEE') {
+      bodyText = `${ev.studentName} (कक्षा ${ev.className}) — ${ev.feeHead}`;
+    } else if (ev.type === 'EXPENSE') {
+      bodyText = `${ev.expenseTitle} — आज का कुल खर्च: ₹${Number(ev.todayTotalExpense || 0).toLocaleString('en-IN')}`;
+    } else if (ev.type === 'CLOSING_SUMMARY') {
+      bodyText = `आय: ₹${Number(ev.totalIncome || 0).toLocaleString('en-IN')} | खर्च: ₹${Number(ev.totalExpense || 0).toLocaleString('en-IN')} | नेट कैश: ₹${Number(ev.netCash || 0).toLocaleString('en-IN')}`;
+    }
+
+    const opts = {
+      body: bodyText,
+      icon: 'logo.png',
+      vibrate: [250, 100, 250],
+      tag: 'school-os-' + (ev.timestamp || Date.now())
+    };
+
+    try {
+      const reg = await ensureServiceWorker();
+      if (reg && typeof reg.showNotification === 'function') {
+        await reg.showNotification(ev.title || 'School OS Pro अपडेट', opts);
+        return true;
+      }
+      new Notification(ev.title || 'School OS Pro अपडेट', opts);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function initOwnerViewer() {
+    ensureServiceWorker();
     const params = new URLSearchParams(window.location.search);
     const urlMob = cleanMobile(params.get('mobile'));
     const savedMob = cleanMobile(localStorage.getItem(STORAGE_MOB_KEY));
@@ -137,9 +272,14 @@
       document.getElementById('dashboardView').style.display = 'block';
       document.getElementById('mobileSubHdr').innerText = `पंजीकृत मोबाइल: +91 ${activeMobile}`;
       document.getElementById('datePickerInp').value = getTodayIso();
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const b = document.getElementById('btnEnableNotif');
+        if (b) b.innerText = '🔔 अलर्ट चालू';
+      }
+
       fetchLiveOwnerData();
       setInterval(fetchLiveOwnerData, 5000);
-      if ('Notification' in window && Notification.permission === 'granted') { const b = document.getElementById('btnEnableNotif'); if (b) b.innerText = '🔔 अलर्ट चालू'; }
     } else {
       document.getElementById('loginView').style.display = 'block';
       document.getElementById('dashboardView').style.display = 'none';
@@ -161,76 +301,6 @@
     window.history.replaceState({}, '', window.location.pathname);
     lastKnownFeedCount = -1;
     initOwnerViewer();
-  }
-
-  function playSoftChime() {
-let swReg = null;
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').then(reg => { swReg = reg; }).catch(() => {});
-  }
-
-  async function enableOwnerNotifications() {
-    playSoftChime();
-    if (!('Notification' in window)) {
-      alert('यह ब्राउज़र नोटिफिकेशन सपोर्ट नहीं करता। कृपया Google Chrome उपयोग करें।');
-      return;
-    }
-    const perm = await Notification.requestPermission();
-    const btn = document.getElementById('btnEnableNotif');
-    if (perm === 'granted') {
-      if (btn) btn.innerText = '🔔 अलर्ट चालू';
-      showMobileAlertBanner({
-        title: '✅ नोटिफिकेशन चालू हो गया',
-        message: 'अब हर फीस और खर्च का अलर्ट मोबाइल की ऊपरी पट्टी में दिखेगा।',
-        timestamp: Date.now()
-      });
-    } else {
-      alert('नोटिफिकेशन ब्लॉक है। Chrome के ताले/सेटिंग आइकन से Notifications को Allow करें।');
-    }
-  }
-
-  async function showMobileAlertBanner(ev) {
-    playSoftChime();
-    if (navigator.vibrate) navigator.vibrate([250, 100, 250]);
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-
-    let bodyText = ev.message || '';
-    if (ev.type === 'FEE') {
-      bodyText = `${ev.studentName} (कक्षा ${ev.className}) — ${ev.feeHead}`;
-    } else if (ev.type === 'EXPENSE') {
-      bodyText = `${ev.expenseTitle} — आज का कुल खर्च: ₹${Number(ev.todayTotalExpense || 0).toLocaleString('en-IN')}`;
-    } else if (ev.type === 'CLOSING_SUMMARY') {
-      bodyText = `आय: ₹${Number(ev.totalIncome || 0).toLocaleString('en-IN')} | खर्च: ₹${Number(ev.totalExpense || 0).toLocaleString('en-IN')} | नेट कैश: ₹${Number(ev.netCash || 0).toLocaleString('en-IN')}`;
-    }
-
-    const opts = {
-      body: bodyText,
-      icon: 'logo.png',
-      vibrate: [250, 100, 250],
-      tag: 'school-os-' + (ev.timestamp || Date.now())
-    };
-
-    try {
-      const reg = swReg || (await navigator.serviceWorker.getRegistration());
-      if (reg && reg.showNotification) {
-        await reg.showNotification(ev.title || 'School OS Pro अपडेट', opts);
-      } else {
-        new Notification(ev.title || 'School OS Pro अपडेट', opts);
-      }
-    } catch (e) {}
-  }
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      gain.gain.setValueAtTime(0.08, ctx.currentTime);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.18);
-    } catch (e) {}
   }
 
   async function fetchLiveOwnerData() {
