@@ -57,7 +57,10 @@
   <div class="header">
     <div class="top-row">
       <span id="statusBadge" class="badge-live">🟢 LIVE SYNC</span>
-      <button class="btn-small" onclick="changeOwnerMobile()">नंबर बदलें</button>
+      <div style="display:flex; gap:6px;">
+     <button id="btnEnableNotif" class="btn-small" onclick="enableOwnerNotifications()">🔔 अलर्ट चालू करें</button>
+     <button class="btn-small" onclick="changeOwnerMobile()">नंबर बदलें</button>
+   </div>
     </div>
     <div style="display:flex; align-items:center; gap:11px; margin-top:10px;">
       <img src="logo.png" alt="Logo" style="width:44px; height:44px; border-radius:11px; background:white; padding:3px; object-fit:contain; flex-shrink:0;">
@@ -136,6 +139,7 @@
       document.getElementById('datePickerInp').value = getTodayIso();
       fetchLiveOwnerData();
       setInterval(fetchLiveOwnerData, 5000);
+      if ('Notification' in window && Notification.permission === 'granted') { const b = document.getElementById('btnEnableNotif'); if (b) b.innerText = '🔔 अलर्ट चालू'; }
     } else {
       document.getElementById('loginView').style.display = 'block';
       document.getElementById('dashboardView').style.display = 'none';
@@ -160,6 +164,61 @@
   }
 
   function playSoftChime() {
+let swReg = null;
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(reg => { swReg = reg; }).catch(() => {});
+  }
+
+  async function enableOwnerNotifications() {
+    playSoftChime();
+    if (!('Notification' in window)) {
+      alert('यह ब्राउज़र नोटिफिकेशन सपोर्ट नहीं करता। कृपया Google Chrome उपयोग करें।');
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    const btn = document.getElementById('btnEnableNotif');
+    if (perm === 'granted') {
+      if (btn) btn.innerText = '🔔 अलर्ट चालू';
+      showMobileAlertBanner({
+        title: '✅ नोटिफिकेशन चालू हो गया',
+        message: 'अब हर फीस और खर्च का अलर्ट मोबाइल की ऊपरी पट्टी में दिखेगा।',
+        timestamp: Date.now()
+      });
+    } else {
+      alert('नोटिफिकेशन ब्लॉक है। Chrome के ताले/सेटिंग आइकन से Notifications को Allow करें।');
+    }
+  }
+
+  async function showMobileAlertBanner(ev) {
+    playSoftChime();
+    if (navigator.vibrate) navigator.vibrate([250, 100, 250]);
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    let bodyText = ev.message || '';
+    if (ev.type === 'FEE') {
+      bodyText = `${ev.studentName} (कक्षा ${ev.className}) — ${ev.feeHead}`;
+    } else if (ev.type === 'EXPENSE') {
+      bodyText = `${ev.expenseTitle} — आज का कुल खर्च: ₹${Number(ev.todayTotalExpense || 0).toLocaleString('en-IN')}`;
+    } else if (ev.type === 'CLOSING_SUMMARY') {
+      bodyText = `आय: ₹${Number(ev.totalIncome || 0).toLocaleString('en-IN')} | खर्च: ₹${Number(ev.totalExpense || 0).toLocaleString('en-IN')} | नेट कैश: ₹${Number(ev.netCash || 0).toLocaleString('en-IN')}`;
+    }
+
+    const opts = {
+      body: bodyText,
+      icon: 'logo.png',
+      vibrate: [250, 100, 250],
+      tag: 'school-os-' + (ev.timestamp || Date.now())
+    };
+
+    try {
+      const reg = swReg || (await navigator.serviceWorker.getRegistration());
+      if (reg && reg.showNotification) {
+        await reg.showNotification(ev.title || 'School OS Pro अपडेट', opts);
+      } else {
+        new Notification(ev.title || 'School OS Pro अपडेट', opts);
+      }
+    } catch (e) {}
+  }
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = ctx.createOscillator();
@@ -231,8 +290,8 @@
         .filter(x => !x.dateIso || x.dateIso === selectedDate)
         .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-      if (lastKnownFeedCount !== -1 && items.length > lastKnownFeedCount) {
-        playSoftChime();
+      if (lastKnownFeedCount !== -1 && items.length > lastKnownFeedCount && selectedDate === getTodayIso()) {
+        showMobileAlertBanner(items[0]);
       }
       lastKnownFeedCount = items.length;
 
