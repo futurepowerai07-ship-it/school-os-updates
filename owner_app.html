@@ -360,10 +360,18 @@
         .filter(x => !x.dateIso || x.dateIso === selectedDate)
         .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-      if (lastKnownFeedCount !== -1 && items.length > lastKnownFeedCount && selectedDate === getTodayIso()) {
-        showMobileAlertBanner(items[0]);
+      if (items.length > 0 && selectedDate === getTodayIso()) {
+        const latest = items[0];
+        const latestTs = Number(latest.timestamp || 0);
+        const savedTs = Number(localStorage.getItem('school_os_last_alert_ts') || 0);
+
+        if (savedTs > 0 && latestTs > savedTs) {
+          showMobileAlertBanner(latest);
+        }
+        if (latestTs > savedTs) {
+          localStorage.setItem('school_os_last_alert_ts', String(latestTs));
+        }
       }
-      lastKnownFeedCount = items.length;
 
       if (items.length === 0) {
         feedList.innerHTML = '<div class="feed-item TEST"><div class="feed-body">चुनी गई तारीख के लिए कोई अलर्ट दर्ज नहीं है।</div></div>';
