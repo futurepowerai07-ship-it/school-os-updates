@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>School OS Pro — ओनर लाइव डैशबोर्ड</title>
+  <meta name="theme-color" content="#0f172a">
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { margin: 0; background: #f1f5f9; color: #0f172a; padding-bottom: 40px; }
+    .header { background: linear-gradient(135deg, #0f172a, #1e3a8a); color: white; padding: 18px 16px 22px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 15px rgba(15,23,42,0.2); }
+    .top-row { display: flex; justify-content: space-between; align-items: center; }
+    .badge-live { background: #16a34a; color: white; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px; }
+    .badge-closed { background: #dc2626; color: white; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px; }
+    .school-title { font-size: 18px; font-weight: 800; margin: 8px 0 2px; }
+    .sub-info { font-size: 12px; color: #cbd5e1; }
+    .container { max-width: 540px; margin: -14px auto 0; padding: 0 14px; }
+    .date-bar { background: white; border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 12px; }
+    .date-bar input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 8px; font-weight: 700; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .card { background: white; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #0284c7; }
+    .card.green { border-left-color: #16a34a; }
+    .card.red { border-left-color: #dc2626; }
+    .card.amber { border-left-color: #d97706; }
+    .card-lbl { font-size: 11.5px; color: #64748b; font-weight: 700; margin-bottom: 4px; }
+    .card-val { font-size: 19px; font-weight: 800; color: #0f172a; }
+    .card-sub { font-size: 11px; color: #475569; margin-top: 2px; }
+    .section-title { font-size: 14px; font-weight: 800; color: #1e293b; margin: 14px 4px 8px; display: flex; justify-content: space-between; align-items: center; }
+    .feed-item { background: white; border-radius: 11px; padding: 12px 14px; margin-bottom: 9px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); border-left: 4px solid #16a34a; }
+    .feed-item.EXPENSE { border-left-color: #dc2626; }
+    .feed-item.CLOSING_SUMMARY { border-left-color: #7c3aed; background: #faf5ff; }
+    .feed-item.TEST { border-left-color: #0284c7; }
+    .feed-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13.5px; margin-bottom: 4px; }
+    .feed-body { font-size: 12.5px; color: #334155; line-height: 1.45; }
+    .feed-time { font-size: 11px; color: #64748b; font-weight: 600; }
+    .login-box { max-width: 400px; margin: 60px auto; background: white; padding: 26px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .login-box input { width: 100%; padding: 12px; font-size: 16px; font-weight: 700; text-align: center; border: 2px solid #cbd5e1; border-radius: 10px; margin: 14px 0; }
+    .btn-primary { width: 100%; background: #0284c7; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 800; cursor: pointer; }
+    .btn-small { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div id="loginView" class="login-box" style="display:none;">
+  <div style="font-size:34px;">🏛️</div>
+  <h2 style="margin:8px 0 4px; font-size:20px;">School OS Pro Live</h2>
+  <p style="font-size:13px; color:#64748b; margin:0;">अपना पंजीकृत 10-अंकों का मोबाइल नंबर दर्ज करें:</p>
+  <input type="tel" id="mobileLoginInp" maxlength="10" placeholder="उदा. 9876543210">
+  <button class="btn-primary" onclick="submitOwnerMobileLogin()">लाइव डैशबोर्ड खोलें</button>
+</div>
+
+<div id="dashboardView" style="display:none;">
+  <div class="header">
+    <div class="top-row">
+      <span id="statusBadge" class="badge-live">🟢 LIVE SYNC</span>
+      <button class="btn-small" onclick="changeOwnerMobile()">नंबर बदलें</button>
+    </div>
+    <div id="schoolNameHdr" class="school-title">School OS Pro</div>
+    <div id="mobileSubHdr" class="sub-info">मोबाइल: -</div>
+  </div>
+
+  <div class="container">
+    <div class="date-bar">
+      <span style="font-size:12.5px; font-weight:800;">📅 दिनांक चुनें:</span>
+      <input type="date" id="datePickerInp" onchange="fetchLiveOwnerData()">
+    </div>
+
+    <div class="grid">
+      <div class="card green">
+        <div class="card-lbl">🏫 कुल आय (आज की फीस)</div>
+        <div id="valTotalIncome" class="card-val">₹0</div>
+        <div id="subIncomeBreakup" class="card-sub">स्कूल: ₹0 | ट्रांसपोर्ट: ₹0</div>
+      </div>
+      <div class="card red">
+        <div class="card-lbl">📉 आज का कुल खर्च</div>
+        <div id="valTotalExpense" class="card-val">₹0</div>
+        <div id="subExpenseCount" class="card-sub">0 खर्च एंट्री</div>
+      </div>
+      <div class="card amber">
+        <div class="card-lbl">💼 नेट कैश इन हैंड</div>
+        <div id="valNetCash" class="card-val">₹0</div>
+        <div class="card-sub">कुल आय − कुल खर्च</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">🧾 कुल फीस रसीदें</div>
+        <div id="valReceiptCount" class="card-val">0</div>
+        <div id="subLastUpdated" class="card-sub">अंतिम अपडेट: -</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span>🔔 लाइव गतिविधियाँ व क्लोजिंग रिपोर्ट</span>
+      <span style="font-size:11px; color:#64748b; font-weight:600;">ऑटो-रिफ्रेश</span>
+    </div>
+    <div id="liveFeedList"></div>
+  </div>
+</div>
+
+<script>
+  const DB_URL = 'https://school-os-sync-default-rtdb.firebaseio.com';
+  const STORAGE_MOB_KEY = 'school_os_owner_viewer_mobile';
+  let activeMobile = '';
+  let lastKnownFeedCount = -1;
+
+  function getTodayIso() {
+    const n = new Date();
+    return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+  }
+
+  function cleanMobile(raw) {
+    const d = String(raw || '').replace(/\D/g, '');
+    return d.length >= 10 ? d.slice(-10) : '';
+  }
+
+  function initOwnerViewer() {
+    const params = new URLSearchParams(window.location.search);
+    const urlMob = cleanMobile(params.get('mobile'));
+    const savedMob = cleanMobile(localStorage.getItem(STORAGE_MOB_KEY));
+
+    activeMobile = urlMob || savedMob;
+    if (activeMobile) {
+      localStorage.setItem(STORAGE_MOB_KEY, activeMobile);
+      document.getElementById('loginView').style.display = 'none';
+      document.getElementById('dashboardView').style.display = 'block';
+      document.getElementById('mobileSubHdr').innerText = `पंजीकृत मोबाइल: +91 ${activeMobile}`;
+      document.getElementById('datePickerInp').value = getTodayIso();
+      fetchLiveOwnerData();
+      setInterval(fetchLiveOwnerData, 5000);
+    } else {
+      document.getElementById('loginView').style.display = 'block';
+      document.getElementById('dashboardView').style.display = 'none';
+    }
+  }
+
+  function submitOwnerMobileLogin() {
+    const m = cleanMobile(document.getElementById('mobileLoginInp').value);
+    if (!m) {
+      alert('कृपया सही 10-अंकों का मोबाइल नंबर दर्ज करें।');
+      return;
+    }
+    localStorage.setItem(STORAGE_MOB_KEY, m);
+    initOwnerViewer();
+  }
+
+  function changeOwnerMobile() {
+    localStorage.removeItem(STORAGE_MOB_KEY);
+    window.history.replaceState({}, '', window.location.pathname);
+    lastKnownFeedCount = -1;
+    initOwnerViewer();
+  }
+
+  function playSoftChime() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.18);
+    } catch (e) {}
+  }
+
+  async function fetchLiveOwnerData() {
+    if (!activeMobile) return;
+    const selectedDate = document.getElementById('datePickerInp').value || getTodayIso();
+
+    try {
+      const [profRes, sumRes, feedRes] = await Promise.all([
+        fetch(`${DB_URL}/owner_live_alerts/${activeMobile}/profile.json`),
+        fetch(`${DB_URL}/owner_live_alerts/${activeMobile}/today/${selectedDate}.json`),
+        fetch(`${DB_URL}/owner_live_alerts/${activeMobile}/feed.json`)
+      ]);
+
+      const prof = profRes.ok ? await profRes.json() : null;
+      const sum = sumRes.ok ? await sumRes.json() : null;
+      const feedRaw = feedRes.ok ? await feedRes.json() : null;
+
+      if (prof && prof.schoolName) {
+        document.getElementById('schoolNameHdr').innerText = prof.schoolName;
+      }
+
+      const badge = document.getElementById('statusBadge');
+      if (sum) {
+        if (sum.schoolName) document.getElementById('schoolNameHdr').innerText = sum.schoolName;
+        document.getElementById('valTotalIncome').innerText = `₹${Number(sum.totalIncome || 0).toLocaleString('en-IN')}`;
+        document.getElementById('subIncomeBreakup').innerText = `स्कूल: ₹${Number(sum.schoolFeeSum || 0).toLocaleString('en-IN')} | ट्रांसपोर्ट: ₹${Number(sum.transportFeeSum || 0).toLocaleString('en-IN')}`;
+        document.getElementById('valTotalExpense').innerText = `₹${Number(sum.totalExpense || 0).toLocaleString('en-IN')}`;
+        document.getElementById('subExpenseCount').innerText = `${sum.expenseCount || 0} खर्च एंट्री`;
+        document.getElementById('valNetCash').innerText = `₹${Number(sum.netCash || 0).toLocaleString('en-IN')}`;
+        document.getElementById('valReceiptCount').innerText = `${sum.receiptCount || 0}`;
+        document.getElementById('subLastUpdated').innerText = `अंतिम अपडेट: ${sum.lastTime || '-'}`;
+
+        if (sum.isClosed) {
+          badge.className = 'badge-closed';
+          badge.innerText = '🔒 सिस्टम बंद (Closing Report)';
+        } else {
+          badge.className = 'badge-live';
+          badge.innerText = '🟢 LIVE SYNC';
+        }
+      } else {
+        document.getElementById('valTotalIncome').innerText = '₹0';
+        document.getElementById('subIncomeBreakup').innerText = 'स्कूल: ₹0 | ट्रांसपोर्ट: ₹0';
+        document.getElementById('valTotalExpense').innerText = '₹0';
+        document.getElementById('subExpenseCount').innerText = '0 खर्च एंट्री';
+        document.getElementById('valNetCash').innerText = '₹0';
+        document.getElementById('valReceiptCount').innerText = '0';
+        document.getElementById('subLastUpdated').innerText = 'इस तारीख का डेटा नहीं है';
+      }
+
+      const feedList = document.getElementById('liveFeedList');
+      if (!feedRaw) {
+        feedList.innerHTML = '<div class="feed-item TEST"><div class="feed-body">अभी कोई अलर्ट उपलब्ध नहीं है। डेस्कटॉप सॉफ्टवेयर में अपना मोबाइल नंबर सेव कर "टेस्ट व अभी सिंक करें" दबाएं।</div></div>';
+        return;
+      }
+
+      const items = Object.values(feedRaw)
+        .filter(x => !x.dateIso || x.dateIso === selectedDate)
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      if (lastKnownFeedCount !== -1 && items.length > lastKnownFeedCount) {
+        playSoftChime();
+      }
+      lastKnownFeedCount = items.length;
+
+      if (items.length === 0) {
+        feedList.innerHTML = '<div class="feed-item TEST"><div class="feed-body">चुनी गई तारीख के लिए कोई अलर्ट दर्ज नहीं है।</div></div>';
+        return;
+      }
+
+      feedList.innerHTML = items.map(ev => {
+        let details = '';
+        if (ev.type === 'FEE') {
+          details = `👤 <b>${ev.studentName}</b> (कक्षा ${ev.className})<br>📌 ${ev.feeHead} | शेष बकाया: ₹${Number(ev.remainingDue || 0).toLocaleString('en-IN')}`;
+        } else if (ev.type === 'EXPENSE') {
+          details = `📝 <b>${ev.expenseTitle}</b> (${ev.category})<br>आज का कुल खर्च: ₹${Number(ev.todayTotalExpense || 0).toLocaleString('en-IN')}`;
+        } else if (ev.type === 'CLOSING_SUMMARY') {
+          details = `🏫 स्कूल फीस: ₹${Number(ev.schoolFeeSum || 0).toLocaleString('en-IN')} | 🚌 ट्रांसपोर्ट: ₹${Number(ev.transportFeeSum || 0).toLocaleString('en-IN')}<br>📉 कुल खर्च: ₹${Number(ev.totalExpense || 0).toLocaleString('en-IN')} | 💼 <b>नेट कैश: ₹${Number(ev.netCash || 0).toLocaleString('en-IN')}</b>`;
+        } else {
+          details = ev.message || '';
+        }
+
+        return `
+          <div class="feed-item ${ev.type || ''}">
+            <div class="feed-head">
+              <span>${ev.title || 'अपडेट'}</span>
+              <span class="feed-time">${ev.time || ''}</span>
+            </div>
+            <div class="feed-body">${details}</div>
+          </div>
+        `;
+      }).join('');
+    } catch (e) {}
+  }
+
+  initOwnerViewer();
+</script>
+</body>
+</html>
